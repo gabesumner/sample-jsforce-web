@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsforce/1.7.0/jsforce.min.js"></script>
+    <script>
+jsforce.browser.init({
+    clientId: "3MVG9SemV5D80oBewoYnxCygb9suHc6ZMKbnArOktEYvlbFSn0kGbQbWmCsNVmHFfIEBsJY59mJYTf.1Mg7hg",
+    redirectUri: "http://localhost:8080",
+    proxyUrl: "https://node-salesforce-proxy.herokuapp.com/proxy/"
+});
+jsforce.browser.on('connect', function(conn) {
+  conn.query('SELECT Id, Name FROM Account', function(err, res) {
+    if (err) { return console.error(err); }
+    console.log(res);
+  });
+});
+  </script>
+</head>
+
+<body>
+    <button onclick="javascript:jsforce.browser.login();">Login</button>
+</body>
+
+</html>

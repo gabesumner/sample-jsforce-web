@@ -1,0 +1,15 @@
+{
+  "name": "sample-jsforce-web",
+  "version": "1.0.0",
+  "description": "Demonstrates how to use the jsForce library in the web browser.",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Gabe Sumner",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.14.0"
+  }
+}
