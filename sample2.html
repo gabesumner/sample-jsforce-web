@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+</head>
+
+<body>
+    <div style="padding-top: 20px;">1. Use developer tools and watch the console.log.</div>
+    <div style="padding-top: 20px;">2. Then login.</div>
+    <button onclick="javascript:jsforce.browser.login();">Login</button>
+    <div style="padding-top: 20px;">3. Then type the contact name and the account to set the contact to.</div>
+    <div>
+        <label for="account">Account:</label>
+        <input type="text" id="account" placeholder="Acme Corp">
+    </div>
+    <div>
+        <label for="contact">Contact:</label>
+        <input type="text" id="contact" placeholder="Willie Coyote">
+    </div>
+    <button onclick="javascript:createAccountContact();">Set</button>
+    <div style="padding-top: 20px;">4. See the result in console.log.</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsforce/1.7.0/jsforce.min.js"></script>
+    <script>
+        var jsForceConn;
+
+        jsforce.browser.init({
+            clientId: "3MVG9uudbyLbNPZPdIz.uqzF0wyw8jpFz_Tc7l.za7mCCK3UIu3PDncF6_5j98u8p9Xeo89S83jDB_jUcsuaR",
+            redirectUri: "http://localhost:8080",
+            proxyUrl: "https://node-salesforce-proxy.herokuapp.com/proxy/"
+        });
+
+        jsforce.browser.on('connect', function(conn) {
+            console.log('Successfully connected to Salesforce');
+            jsForceConn = conn;
+        });
+
+        function createAccountContact() {
+            var account = document.getElementById('account').value;
+            var contact = document.getElementById('contact').value;
+
+            console.log('-----------------------------')
+            console.log('Starting...')
+
+            // Make sure jsForceConn is set and that we're logged in.
+            try {
+                if (jsforce.browser.isLoggedIn() == false || jsForceConn == null) {
+                    throw 'Not logged in.'
+                }
+            } catch (error) {
+                console.log('Not logged in. Log in first.');
+                return;
+            }
+
+            // Fetch or create the account.
+            var getAccountPromise = new Promise((resolve, reject) => {
+                console.log('Getting account: ' + account);
+                getAccount(resolve, jsForceConn, account);
+            });
+
+            // Fetch or create the contact
+            var getContactPromise = new Promise((resolve, reject) => {
+                console.log('Getting contact: ' + contact);
+                getContact(resolve, jsForceConn, contact);
+            });
+
+            // When both API calls have finished...
+            Promise.all([getAccountPromise, getContactPromise]).then(values => {
+                console.log('All promises returned. Updating contact.');
+
+                var accountId = values[0];
+                var contactId = values[1];
+
+                // Then set the Contractor for the Project
+                jsForceConn.sobject("Contact").update({
+                    Id: contactId,
+                    AccountId: accountId
+                }, function(err, ret) {
+                    if (err || !ret.success) {
+                        return console.error(err, ret);
+                    }
+                    console.log('Account for Contact successfully updated!');
+                });
+            });
+        }
+
+        // Return the ID for the Account. If it doesn't exist, create it.
+        function getAccount(resolve, conn, account) {
+            conn.query("SELECT Id FROM Account WHERE Name = '" + account + "'", function(err, res) {
+                if (err) {
+                    console.error(err);
+                }
+                if (res['totalSize'] == 0) {
+                    console.log("Account doesn't exist, creating it.");
+                    createAccount(resolve, conn, account);
+                } else {
+                    console.log('Account already exists, returning ID: ' + res['records'][0]['Id']);
+                    resolve(res['records'][0]['Id']);
+                }
+            });
+        }
+
+        // Create the account then return the ID.
+        function createAccount(resolve, conn, account) {
+            conn.sobject("Account").create({
+                Name: account
+            }, function(err, ret) {
+                if (err || !ret.success) {
+                    return console.error(err, ret);
+                }
+                console.log('Created new account: ' + ret.id);
+                resolve(ret.id);
+            });
+        }
+
+        function getContact(resolve, conn, contact) {
+            var formattedContact = name.replace(/'/g, "\\'");
+            conn.query("SELECT Id, Name FROM Contact WHERE Name = '" + formattedContact + "'", function(err, res) {
+                if (err) {
+                    return console.error(err);
+                }
+                if (res['totalSize'] == 0) {
+                    console.log("Contact doesn't exist, creating it..");
+                    createContact(resolve, conn, contact);
+                } else {
+                    console.log('Contact already exists, returning ID: ' + res['records'][0]['Id']);
+                    resolve(res['records'][0]['Id']);
+                }
+            });
+        }
+
+        function createContact(resolve, conn, contact) {
+            var contactNames = contact.split(" ");
+            conn.sobject("Contact").create({
+                FirstName: contactNames[0],
+                LastName: contactNames[1]
+            }, function(err, ret) {
+                if (err || !ret.success) {
+                    return console.error(err, ret);
+                }
+                console.log('Created new contact: ' + ret.id);
+                resolve(ret.id);
+            });
+        }
+    </script>
+
+</body>
+
+</html>
