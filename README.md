@@ -53,10 +53,6 @@ Not only do you need to replace the clientId and redirectUri variables with your
 1. Clone this repo:  
 *git clone https://github.com/gabesumner/sample-jsforce-web*
 
-1. Modify the *index.html* file.
-   1. Modify *clientId* to point to your Consumer Key for your *Connected App*.
-   1. Notice this code uses a proxy server. You can use the proxy server already shown in the code, but if you want to create your own proxy server then check out [JSforce AJAX Proxy](https://github.com/jsforce/jsforce-ajax-proxy).
-
 1. Run *npm install* to install the dependencies.  
 
 1. Run *node server.js*.
@@ -65,7 +61,7 @@ Not only do you need to replace the clientId and redirectUri variables with your
 
 1. Open Developer Tools (so you can see the console.log messages).
 
-1. Click the *Login* button.
+1. Explore the samples.
 
 1. Login using the credentials for your Salesforce org.
 
